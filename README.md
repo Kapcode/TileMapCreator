@@ -1,0 +1,1 @@
+Simple tilemap editor. works with a claspath .jsonfile. this is for private use at the moment. if anyone is interested, i would be happy to implement features sutch as file exporting, but i use this directly inside of IntelliJ IDEA. Just pointless for me to do extra work for no reason. 
