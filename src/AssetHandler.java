@@ -7,9 +7,9 @@ import java.io.Reader;
 import java.io.Writer;
 
 public class AssetHandler {
-    public static Level loadLevel(String levelName) {
+    public static Level loadLevel(String filePath) {
         Gson gson = new Gson();
-        try (Reader reader = new FileReader("src/" + levelName)) {
+        try (Reader reader = new FileReader(filePath)) {
             return gson.fromJson(reader, Level.class);
         } catch (Exception e) {
             e.printStackTrace();
@@ -17,9 +17,9 @@ public class AssetHandler {
         }
     }
 
-    public static void saveLevel(Level level, String levelName) {
+    public static void saveLevel(Level level, String filePath) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
-        try (Writer writer = new FileWriter("src/" + levelName)) {
+        try (Writer writer = new FileWriter(filePath)) {
             gson.toJson(level, writer);
         } catch (Exception e) {
             e.printStackTrace();

@@ -3,31 +3,34 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
 public class TileMapEditor extends JFrame {
-    private final Level level;
-    private final String levelName;
+    private Level level;
+    private String currentFilePath;
     private final Map<Integer, Color> colorMap;
 
-    // Tool components
     private final JTextField paintValueField;
     private ToolMode currentTool = ToolMode.RECTANGLE_SELECT;
 
     private enum ToolMode { RECTANGLE_SELECT, BRUSH, ERASER }
 
-    public TileMapEditor(Level level, String levelName) {
+    public TileMapEditor(Level level, String filePath) {
         this.level = level;
-        this.levelName = levelName;
+        this.currentFilePath = filePath;
         this.colorMap = new LinkedHashMap<>();
         setupColorMap();
 
-        setTitle("Tile Map Editor - " + levelName);
+        setTitle("Tile Map Editor - " + new File(currentFilePath).getName());
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         GridPanel gridPanel = new GridPanel(level, colorMap);
         JScrollPane scrollPane = new JScrollPane(gridPanel);
+
+        // --- Menu Bar ---
+        setJMenuBar(createMenuBar());
 
         // --- Tool Panel (Left) ---
         paintValueField = new JTextField("1", 5);
@@ -66,18 +69,65 @@ public class TileMapEditor extends JFrame {
         toolPanel.add(legendPanel);
         toolPanel.add(Box.createVerticalGlue());
 
-        // --- Bottom Panel (Save Button) ---
-        JPanel bottomPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        JButton saveButton = new JButton("Save");
-        saveButton.addActionListener(this::saveMap);
-        bottomPanel.add(saveButton);
-
         getContentPane().add(toolPanel, BorderLayout.WEST);
         getContentPane().add(scrollPane, BorderLayout.CENTER);
-        getContentPane().add(bottomPanel, BorderLayout.SOUTH);
 
         setSize(900, 600);
         setLocationRelativeTo(null);
+    }
+
+    private JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+        JMenu fileMenu = new JMenu("File");
+        menuBar.add(fileMenu);
+
+        JMenuItem openItem = new JMenuItem("Open...");
+        openItem.addActionListener(e -> openFile());
+        fileMenu.add(openItem);
+
+        JMenuItem saveItem = new JMenuItem("Save");
+        saveItem.addActionListener(e -> saveFile());
+        fileMenu.add(saveItem);
+
+        JMenuItem saveAsItem = new JMenuItem("Save As...");
+        saveAsItem.addActionListener(e -> saveFileAs());
+        fileMenu.add(saveAsItem);
+
+        return menuBar;
+    }
+
+    private void openFile() {
+        JFileChooser fileChooser = new JFileChooser("src");
+        if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            Level newLevel = AssetHandler.loadLevel(file.getAbsolutePath());
+            if (newLevel != null) {
+                new TileMapEditor(newLevel, file.getAbsolutePath()).setVisible(true);
+                this.dispose(); // Close the current window
+            } else {
+                JOptionPane.showMessageDialog(this, "Could not load level file.", "Error", JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+
+    private void saveFile() {
+        AssetHandler.saveLevel(level, currentFilePath);
+        JOptionPane.showMessageDialog(this, "File saved successfully!");
+    }
+
+    private void saveFileAs() {
+        JFileChooser fileChooser = new JFileChooser("src");
+        if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
+            File file = fileChooser.getSelectedFile();
+            String newPath = file.getAbsolutePath();
+            if (!newPath.toLowerCase().endsWith(".json")) {
+                newPath += ".json";
+            }
+            this.currentFilePath = newPath;
+            this.level.levelName = file.getName().replaceFirst("[.][^.]+$", "");
+            setTitle("Tile Map Editor - " + file.getName());
+            saveFile();
+        }
     }
 
     private void setupColorMap() {
@@ -98,11 +148,6 @@ public class TileMapEditor extends JFrame {
             legendPanel.add(legendEntry);
         }
         return legendPanel;
-    }
-
-    private void saveMap(java.awt.event.ActionEvent e) {
-        AssetHandler.saveLevel(level, levelName);
-        JOptionPane.showMessageDialog(this, "Level saved successfully!");
     }
 
     private static class ColorSwatch extends JComponent {
@@ -133,7 +178,7 @@ public class TileMapEditor extends JFrame {
                 @Override public void mouseDragged(MouseEvent e) { handleMouse(e); }
                 @Override public void mouseReleased(MouseEvent e) {
                     if (currentTool == ToolMode.RECTANGLE_SELECT) {
-                        repaint(); // Keep selection rect visible
+                        repaint();
                     }
                 }
             };
@@ -181,7 +226,7 @@ public class TileMapEditor extends JFrame {
                         }
                     }
                 }
-                selectionRect = null; // Clear selection after painting
+                selectionRect = null;
                 repaint();
             } catch (NumberFormatException ex) {
                 JOptionPane.showMessageDialog(this, "Invalid Paint Value.", "Error", JOptionPane.ERROR_MESSAGE);
