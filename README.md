@@ -1,1 +1,1 @@
-Simple tilemap editor. In very early stages at the moment, but check out Kapcode.us for some infoermation on whats up. My level.json is probobly not structured the same as yours, but don't let that limit you, This is just the begining.
+Simple tilemap editor. In very early stages at the moment, but check out Kapcode.us for some information on whats up. My level.json is probobly not structured the same as yours, but don't let that limit you, This is just the begining.
