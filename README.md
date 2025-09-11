@@ -1,1 +1,1 @@
-Simple tilemap editor. works with a claspath .jsonfile. this is for private use at the moment. if anyone is interested, i would be happy to implement features sutch as file exporting, but i use this directly inside of IntelliJ IDEA. Just pointless for me to do extra work for no reason. 
+Simple tilemap editor. In very early stages at the moment, but check out Kapcode.us for some infoermation on whats up. My level.json is probobly not structured the same as yours, but don't let that limit you, This is just the begining.
