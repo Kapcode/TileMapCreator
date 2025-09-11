@@ -4,7 +4,11 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.File;
+import java.io.IOException;
+import java.net.URL;
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 
 public class TileMapEditor extends JFrame {
@@ -24,6 +28,7 @@ public class TileMapEditor extends JFrame {
         setupColorMap();
 
         setTitle("Tile Map Editor - " + new File(currentFilePath).getName());
+        setAppIcon();
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
         GridPanel gridPanel = new GridPanel(level, colorMap);
@@ -75,6 +80,24 @@ public class TileMapEditor extends JFrame {
         setSize(900, 600);
         setLocationRelativeTo(null);
     }
+    private void setAppIcon() {
+        List<Image> icons = new ArrayList<>();
+        // Load icons in different sizes, from smallest to largest
+        String[] iconPaths = { "/icons/icon_16.png", "/icons/icon_32.png", "/icons/icon_64.png" };
+
+        for (String path : iconPaths) {
+            URL iconURL = getClass().getResource(path);
+            if (iconURL != null) {
+                icons.add(new ImageIcon(iconURL).getImage());
+            } else {
+                System.err.println("Warning: Could not find icon resource: " + path);
+            }
+        }
+
+        if (!icons.isEmpty()) {
+            setIconImages(icons);
+        }
+    }
 
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
@@ -97,7 +120,7 @@ public class TileMapEditor extends JFrame {
     }
 
     private void openFile() {
-        JFileChooser fileChooser = new JFileChooser("src");
+        JFileChooser fileChooser = new JFileChooser("resources");
         if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             Level newLevel = AssetHandler.loadLevel(file.getAbsolutePath());
@@ -116,7 +139,7 @@ public class TileMapEditor extends JFrame {
     }
 
     private void saveFileAs() {
-        JFileChooser fileChooser = new JFileChooser("src");
+        JFileChooser fileChooser = new JFileChooser("resources");
         if (fileChooser.showSaveDialog(this) == JFileChooser.APPROVE_OPTION) {
             File file = fileChooser.getSelectedFile();
             String newPath = file.getAbsolutePath();

@@ -5,8 +5,8 @@ import java.io.File;
 
 public class Main {
     public static void main(String[] args) {
-        // Construct the full path to the initial level file
-        String initialLevelPath = new File("src/level1.json").getAbsolutePath();
+        // Construct the full path to the initial level file in its new location
+        String initialLevelPath = new File("resources/level1.json").getAbsolutePath();
         Level level = AssetHandler.loadLevel(initialLevelPath);
 
         if (level != null) {
